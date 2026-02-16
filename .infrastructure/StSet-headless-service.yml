@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: service
+metadata:
+  name: mysql-headless-service
+  namespace: mysql
+spec:
+  selector:
+    app: mysql
+  ports: 
+  - name: mysql
+    port: 3306
+  ClusterIP: None
