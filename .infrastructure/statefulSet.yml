@@ -8,7 +8,7 @@ spec:
     matchLabels:
       app: mysql
   serviceName: mysql-headless-service
-  replicas: 1
+  replicas: 3
   template:
     metadata:
       labels:
@@ -18,49 +18,58 @@ spec:
       - name: mysql
         image: mysql:8.0
         env:
-        - name: HOST
+        - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: app-secret
-              key: HOST
-        - name: USER
+              name: db-secret
+              key: MYSQL_ROOT_PASSWORD
+        - name: MYSQL_USER
           valueFrom:
             secretKeyRef:
-              name: app-secret
-              key: USER
-        - name: PASSWORD
+              name: db-secret
+              key: MYSQL_USER
+        - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: app-secret
-              key: PASSWORD
-        - name: NAME
+              name: db-secret
+              key: MYSQL_PASSWORD
+        - name: MYSQL_DATABASE
           valueFrom:
             secretKeyRef:
-              name: app-secret
-              key: NAME
+              name: db-secret
+              key: MYSQL_DATABASE
         ports:
         - containerPort: 3306
+        livenessProbe:
+          tcpSocket:
+            port: 3306
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command: ['mysqladmin', 'ping']
+          initialDelaySeconds: 5
+          periodSeconds: 2
+          timeoutSeconds: 1
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
         volumeMounts:
-        - name: pv-data
+        - name: mysql-data
           mountPath: /var/lib/mysql
         - name: mysql-init-script
           mountPath: /docker-entrypoint-initdb.d
-    volumes:
-    - name: pv-data
-      persistentVolumeClaim:
-        claimName: pvc-data
-    - name: mysql-init-script
-      configMap:
-        name: mysql-init-script
-  livenessProbe:
-    exec:
-      command: ['mysqladmin', 'ping']
-    initialDelaySeconds: 30
-    periodSeconds: 10
-    timeoutSeconds: 5
-  readinessProbe:
-    exec:
-      command: ['mysqladmin', 'ping']
-    initialDelaySeconds: 5
-    periodSeconds: 2
-    timeoutSeconds: 1
+  volumeClaimsTemplate:
+  - metadata:
+      name: mysql-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
+  
