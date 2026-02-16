@@ -68,6 +68,7 @@ DATABASES = {
     # }
 
     "default": {
+        "ENGINE": "django.db.backends.mysql",
         "HOST": os.environ.get("HOST", ""),
         "PORT": 3306,
         "NAME": os.environ.get("NAME", ""),

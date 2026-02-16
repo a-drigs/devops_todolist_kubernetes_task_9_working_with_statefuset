@@ -47,8 +47,8 @@ spec:
           periodSeconds: 10
           timeoutSeconds: 5
         readinessProbe:
-          exec:
-            command: ['mysqladmin', 'ping']
+          tcpSocket:
+            port: 3306
           initialDelaySeconds: 5
           periodSeconds: 2
           timeoutSeconds: 1
@@ -64,7 +64,7 @@ spec:
           mountPath: /var/lib/mysql
         - name: mysql-init-script
           mountPath: /docker-entrypoint-initdb.d
-  volumeClaimsTemplate:
+  volumeClaimsTemplates:
   - metadata:
       name: mysql-data
     spec:
@@ -72,4 +72,9 @@ spec:
       resources:
         requests:
           storage: 1Gi
-  
+  volumes:
+  - name: mysql-init-script
+    configMap:
+      name: mysql-init-script
+      items:
+      - key: init.sql

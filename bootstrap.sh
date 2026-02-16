@@ -3,7 +3,8 @@ set -e
 kubectl apply -f .infrastructure/namespace-mysql.yml
 kubectl apply -f .infrastructure/namespace-todoapp.yml
 kubectl apply -f .infrastructure/configMap.yml
-kubectl apply -f .infrastructure/secret.yml
+kubectl apply -f .infrastructure/secret-app.yml
+kubectl apply -f .infrastructure/secret-db.yml
 kubectl apply -f .infrastructure/StSet-headless-service.yml
 kubectl apply -f .infrastructure/pv.yml
 kubectl apply -f .infrastructure/pvc.yml
